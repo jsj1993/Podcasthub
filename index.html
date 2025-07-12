@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Superstar Broadcast Hub</title>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+  <style>
+    /* Reset & Base */
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #f0f0f0;
+      overflow-x: hidden;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    /* Header */
+    .header {
+      background: rgba(26, 32, 44, 0.95);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 30px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      animation: slideInDown 0.8s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #ff6b6b, #ffd93d, #2ecc71);
+    }
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      font-size: 16px;
+      opacity: 0.9;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+      color: #a0aec0;
+    }
+    .live-indicator {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(45deg, #e74c3c, #ff6b6b);
+      padding: 8px 16px;
+      border-radius: 25px;
+      width: fit-content;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 25px;
+      box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .live-dot {
+      width: 12px;
+      height: 12px;
+      background: #ff0000;
+      border-radius: 50%;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .role-selector {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .role-btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      backdrop-filter: blur(5px);
+    }
+    .role-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+    }
+    .role-btn.active {
+      background: linear-gradient(45deg, #3498db, #2ecc71);
+      box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+    }
+    .main-content {
+      display: none;
+      animation: fadeIn 0.5s ease-out;
+    }
+    .main-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .video-player {
+      width: 100%;
+      height: 300px;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 100%);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .video-player::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
+    .video-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 1;
+    }
+    .video-placeholder i {
+      font-size: 48px;
+      margin-bottom: 15px;
+      color: rgba(255, 255, 255, 0.2);
+    }
+    .video-placeholder h3 {
+      margin: 0;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    .chat-container {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      margin-top: 20px;
+      background: rgba(26, 32, 44, 0.8);
+    }
+    .chat-header {
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+    }
+    .chat-messages {
+      height: 250px;
+      overflow-y: auto;
+      padding: 15px;
+      background: rgba(15, 23, 42, 0.7);
+      scrollbar-width: thin;
+      scrollbar-color: #4a5568 #1a202c;
+    }
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-messages::-webkit-scrollbar-track {
+      background: #1a202c;
+    }
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: #4a5568;
+      border-radius: 3px;
+    }
+    .chat-input {
+      display: flex;
+      padding: 15px;
+      background: #1a202c;
+      gap: 10px;
+    }
+    .chat-input input {
+      flex-grow: 1;
+      padding: 12px 16px;
+      border: 2px solid #2d3748;
+      border-radius: 8px;
+      outline: none;
+      background: #2d3748;
+      color: white;
+      transition: border-color 0.3s ease;
+    }
+    .chat-input input:focus {
+      border-color: #3498db;
+    }
+    .chat-input button {
+      padding: 12px 20px;
+      background: linear-gradient(45deg, #3498db, #2ecc71);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .chat-input button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    }
+    .message {
+      margin-bottom: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(45, 55, 72, 0.7);
+      animation: fadeInMessage 0.3s ease-out;
+    }
+    @keyframes fadeInMessage {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .message.broadcaster {
+      background: linear-gradient(45deg, #e74c3c, #ff6b6b);
+      color: white;
+    }
+    .message.viewer {
+      background: linear-gradient(45deg, #3498db, #5dade2);
+      color: white;
+    }
+    .message.system {
+      background: rgba(255, 255, 255, 0.1);
+      color: #a0aec0;
+      font-style: italic;
+    }
+    .message .sender {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .big-btn {
+      padding: 20px 30px;
+      font-size: 18px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      width: 100%;
+      justify-content: center;
+    }
+    .big-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .start {
+      background: linear-gradient(45deg, #2ecc71, #27ae60);
+      color: white;
+    }
+    .stop {
+      background: linear-gradient(45deg, #e74c3c, #c0392b);
+      color: white;
+    }
+    .stream-time {
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffd93d;
+      text-align: center;
+      margin: 10px 0;
+      text-shadow: 0 0 10px rgba(255, 217, 61, 0.3);
+    }
+    .admin-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .admin-card {
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .admin-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    }
+    .admin-card h3 {
+      margin-top: 0;
+      color: #ffd93d;
+      font-size: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .control-btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-top: 10px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      background: #3498db;
+      color: white;
+    }
+    .control-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    .watermark {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      color: rgba(255, 255, 255, 0.2);
+      font-size: 14px;
+      z-index: 100;
+    }
+    @media (max-width: 768px) {
+      .role-selector {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">SUPERSTAR BROADCAST HUB</div>
+      <div class="subtitle">Professional Multi-Platform Streaming System</div>
+      <div class="live-indicator">
+        <span class="live-dot"></span>
+        LIVE BROADCAST SYSTEM
+      </div>
+      <div class="role-selector">
+        <button class="role-btn viewer active" id="btnViewer" onclick="switchRole('viewer')">
+          <i class="fas fa-eye"></i> Viewer Dashboard
+        </button>
+        <button class="role-btn broadcaster" id="btnBroadcaster" onclick="switchRole('broadcaster')">
+          <i class="fas fa-microphone-alt"></i> Broadcaster Control
+        </button>
+        <button class="role-btn admin" id="btnAdmin" onclick="switchRole('admin')">
+          <i class="fas fa-cog"></i> Admin Management
+        </button>
+      </div>
+    </div>
+
+    <div id="viewerPanel" class="main-content active">
+      <h2>Viewer Dashboard</h2>
+      <div class="video-player" id="viewerStream">
+        <div class="video-placeholder">
+          <i class="fas fa-video"></i>
+          <h3>No stream selected</h3>
+        </div>
+      </div>
+      <div class="chat-container">
+        <div class="chat-header">Chat</div>
+        <div class="chat-messages" id="viewerMessages"></div>
+        <div class="chat-input">
+          <input id="viewerChatInput" type="text" placeholder="Enter message..." />
+          <button onclick="sendMessage('viewer')">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="broadcasterPanel" class="main-content">
+      <h2>Broadcaster Control</h2>
+      <button id="startStreamBtn" class="big-btn start" onclick="startBroadcast()">Start Broadcast</button>
+      <button id="stopStreamBtn" class="big-btn stop" disabled onclick="stopBroadcast()">Stop Broadcast</button>
+      <div class="stream-time" id="streamTimer">00:00:00</div>
+      <div class="chat-container">
+        <div class="chat-header">Chat</div>
+        <div class="chat-messages" id="broadcasterMessages"></div>
+        <div class="chat-input">
+          <input id="broadcasterChatInput" type="text" placeholder="Enter message..." />
+          <button onclick="sendMessage('broadcaster')">Send</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="adminPanel" class="main-content">
+      <h2>Admin Management</h2>
+      <div class="admin-panel">
+        <div class="admin-card">
+          <h3><i class="fas fa-users-cog"></i> User Management</h3>
+          <button class="control-btn" onclick="alert('Manage users coming soon')">Manage Users</button>
+        </div>
+        <div class="admin-card">
+          <h3><i class="fas fa-tv"></i> Channel Settings</h3>
+          <button class="control-btn" onclick="alert('Channel settings coming soon')">Manage Channels</button>
+        </div>
+        <div class="admin-card">
+          <h3><i class="fas fa-sliders-h"></i> System Settings</h3>
+          <button class="control-btn" onclick="alert('Settings coming soon')">Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="watermark">© 2025 Superstar Broadcast Hub</div>
+
+  <script>
+    // Role switching
+    const roles = ['viewer', 'broadcaster', 'admin'];
+    function switchRole(role) {
+      roles.forEach(r => {
+        document.getElementById('btn' + capitalize(r)).classList.toggle('active', r === role);
+        document.getElementById(r + 'Panel').classList.toggle('active', r === role);
+      });
+    }
+    function capitalize(s) {
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    // Chat & messaging
+    function sendMessage(from) {
+      const isViewer = from === 'viewer';
+      const input = document.getElementById(from + 'ChatInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const msg = createMessageElement(from, text);
+      document.getElementById(from + 'Messages').appendChild(msg);
+      input.value = '';
+
+      // simulate sending to other
+      setTimeout(() => {
+        const other = isViewer ? 'broadcaster' : 'viewer';
+        const reply = createMessageElement(other, `(copy) ${text}`);
+        document.getElementById(other + 'Messages').appendChild(reply);
+      }, 500);
+    }
+
+    function createMessageElement(sender, text) {
+      const el = document.createElement('div');
+      el.className = 'message ' + (sender === 'viewer' ? 'viewer' : 'broadcaster');
+      el.innerHTML = `<div class="sender">${capitalize(sender)}</div>${text}`;
+      return el;
+    }
+
+    // Broadcast timer
+    let streamInterval, startTime;
+    function startBroadcast() {
+      startStreamBtn.disabled = true;
+      stopStreamBtn.disabled = false;
+      startTime = Date.now();
+      streamInterval = setInterval(() => {
+        const diff = Date.now() - startTime;
+        document.getElementById('streamTimer').innerText = new Date(diff)
+          .toISOString()
+          .substr(11, 8);
+      }, 1000);
+    }
+    function stopBroadcast() {
+      clearInterval(streamInterval);
+      startStreamBtn.disabled = false;
+      stopStreamBtn.disabled = true;
+    }
+  </script>
+</body>
+</html>
